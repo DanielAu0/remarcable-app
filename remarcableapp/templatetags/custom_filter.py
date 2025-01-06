@@ -1,10 +1,13 @@
 from django import template
 from urllib.parse import urlencode, urlparse, parse_qs, urlunparse
 
+from django.http import HttpRequest
+
 register = template.Library()
 
 @register.simple_tag
-def update_query_params(request, field, value):
+def update_query_params(request: HttpRequest, field: str, value: str) -> str:
+    # Ensure proper type
     value = str(value)
 
     # Parse the current query string into a dictionary
@@ -16,7 +19,7 @@ def update_query_params(request, field, value):
     else:
         if field == "tag":
             # Manage tags as a list
-            tags = query_dict.get('tag', [])
+            tags: list[str] = query_dict.get('tag', [])
             if value not in tags:
                 tags.append(value)
             query_dict['tag'] = tags
@@ -24,10 +27,10 @@ def update_query_params(request, field, value):
             query_dict[field] = [value]
 
     # Rebuild the query string
-    new_query_string = urlencode(query_dict, doseq=True)
+    new_query_string: str = urlencode(query_dict, doseq=True)
 
     # Rebuild the full URL with the updated query string
-    url_parts = list(urlparse(request.get_full_path()))
+    url_parts: list[str] = list(urlparse(request.get_full_path()))
     url_parts[4] = new_query_string  # url_parts[4] is the query string
 
     return urlunparse(url_parts)

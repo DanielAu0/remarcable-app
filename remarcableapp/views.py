@@ -1,23 +1,24 @@
 from django.core.cache import cache
 from django.db.models import Q, Count
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
 from .models import Category, Product, Tag
 
 # Cache timeout duration
-CACHE_TIMEOUT = 3600  # 1 hour 
+CACHE_TIMEOUT: int = 3600  # 1 hour 
 
-def index(request):
+def index(request: HttpRequest) -> HttpResponse:
     # Get filters from URL parameters
-    query = request.GET.get('query', '')
-    category = request.GET.get('category', 0)
-    tags = request.GET.getlist('tag', [])
+    query: str = request.GET.get('query', '')
+    category: int = int(request.GET.get('category', 0))
+    tags: list[str] = request.GET.getlist('tag', [])
 
     # Get all products
     products = Product.objects.all()
 
     # Initialize filters
-    filters = Q()
+    filters: Q = Q()
 
     if query:
         filters &= Q(description__icontains=query)
@@ -31,12 +32,12 @@ def index(request):
     products = products.filter(filters)
 
     # Cache all categories and tags
-    all_categories = cache.get('all_categories')
+    all_categories: list[Category] = cache.get('all_categories')
     if not all_categories:
         all_categories = Category.objects.all()
         cache.set('all_categories', all_categories, timeout=CACHE_TIMEOUT)  
 
-    all_tags = cache.get('all_tags')
+    all_tags: list[Tag] = cache.get('all_tags')
     if not all_tags:
         all_tags = Tag.objects.all()
         cache.set('all_tags', all_tags, timeout=CACHE_TIMEOUT) 
