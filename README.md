@@ -7,7 +7,6 @@ This project demonstrates the functionality to model products, categories, and t
 - `asgiref==3.8.1`
 - `beautifulsoup4==4.12.3`
 - `Django==4.2.17`
-- `django-bootstrap-v5==1.0.11`
 - `django-debug-toolbar==4.4.6`
 - `soupsieve==2.6`
 - `sqlparse==0.5.3`
